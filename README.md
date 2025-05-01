@@ -8,7 +8,9 @@ Atanor Sefirotyczny to interaktywny system transmutacji epistemicznej oparty na 
 - **Trzy formy transmutacji** - Separatio (analityczna), Coagulatio (pragmatyczna) i Coniunctio (dialektyczna)
 - **Cztery fazy alchemiczne** - Nigredo (dekonstrukcja), Albedo (klaryfikacja), Citrinitas (integracja) i Rubedo (manifestacja)
 - **Parametryzowane procesy** - dostosowywanie transmutacji poprzez specyficzne parametry
-- **Interaktywny dialog** - możliwość eksploracji wyników poprzez zadawanie dodatkowych pytań
+- **Dwa tryby działania**:
+  - **Tryb generowania promptów (bez API)** - generuje zaawansowane prompty, które można wykorzystać z dowolnym modelem AI
+  - **Tryb API** - bezpośrednia integracja z Claude API (wymaga klucza API)
 
 ## Instalacja i uruchomienie
 
@@ -31,13 +33,20 @@ Aplikacja jest dostępna pod adresem: [https://yourusername.github.io/atanor-sef
 
 ## Korzystanie z systemu
 
-### Konfiguracja API
+### Konfiguracja trybu
 
-Atanor Sefirotyczny używa modelu Claude od Anthropic do generowania transformacji. Aby korzystać z systemu, potrzebujesz klucza API:
+Atanor Sefirotyczny oferuje dwa tryby działania:
 
-1. Utwórz konto na [Anthropic](https://www.anthropic.com/)
-2. Wygeneruj klucz API w panelu użytkownika
-3. Wprowadź klucz w oknie konfiguracji Atanora
+1. **Tryb generowania promptów (bez API)** - domyślny tryb, który nie wymaga żadnych kluczy API
+   - System generuje zaawansowany prompt oparty na wybranych parametrach
+   - Prompt można skopiować i wykorzystać z dowolnym modelem AI (ChatGPT, Claude, itp.)
+
+2. **Tryb API** - bezpośrednia integracja z Claude API
+   - Wymaga klucza API od Anthropic
+   - System automatycznie przetwarza transmutację i prezentuje wyniki
+   - Umożliwia interaktywny dialog w kontekście transmutacji
+
+Wybór trybu jest dostępny przy pierwszym uruchomieniu lub po kliknięciu "Konfiguracja API" w stopce.
 
 ### Proces transmutacji
 
@@ -48,15 +57,25 @@ Atanor Sefirotyczny używa modelu Claude od Anthropic do generowania transformac
 5. **Wprowadź temat** - wpisz temat, który chcesz poddać transmutacji
 6. **Rozpocznij transmutację** - kliknij przycisk "Rozpocznij transmutację"
 
-### Interpretacja wyników
+### W trybie generowania promptów:
+
+- System wyświetli wygenerowany prompt w polu tekstowym
+- Możesz skopiować prompt za pomocą przycisku "Kopiuj prompt"
+- Następnie możesz użyć tego promptu z dowolnym systemem AI
+
+### W trybie API:
+
+- System automatycznie wyśle prompt do API Claude
+- Wyniki będą wyświetlone jako strukturyzowane etapy transmutacji
+- Możesz kontynuować dialog, zadając pytania dotyczące wyników
+
+## Etapy transmutacji
 
 Wyniki transmutacji są strukturalizowane według etapów wybranej formy:
 
 - **Separatio**: Materia Prima → Calcinatio → Separatio → Solutio → Quintessentia
 - **Coagulatio**: Fixatio → Multiplicatio → Fermentatio → Projectio → Rubedo
 - **Coniunctio**: Mortificatio Recensio → Putrefactio Creativa → Inversio Hierarchiae → Coniunctio → Lapis Philosophorum
-
-Po zakończeniu transmutacji możesz zadawać pytania dotyczące wyników, eksplorując temat głębiej.
 
 ## Struktura projektu
 
@@ -74,6 +93,14 @@ atanor-sefirotyczny/
 └── README.md             # Dokumentacja projektu
 ```
 
+## Zalecenia dot. modeli AI
+
+Dla uzyskania najlepszych wyników w trybie promptów zalecane są modele o dużej mocy obliczeniowej:
+
+- **Claude Opus** lub **Claude 3 Opus** - najwyższa jakość wyników
+- **GPT-4** - bardzo dobre wyniki
+- **Claude Sonnet**, **GPT-3.5 Turbo** - zadowalające wyniki dla prostszych tematów
+
 ## Rozszerzanie systemu
 
 ### Dodawanie nowych form transmutacji
@@ -85,12 +112,6 @@ atanor-sefirotyczny/
 ### Modyfikacja definicji sefirot
 
 Edytuj sekcję `sefirot` w pliku `atanorDatabase.js`, aby dostosować definicje, funkcje epistemiczne i opisy poszczególnych sefirot.
-
-## Techniczne szczegóły
-
-- **D3.js** - do wizualizacji Drzewa Życia
-- **Marked.js** - do parsowania odpowiedzi Markdown
-- **Claude API** - do generowania transformacji epistemicznych
 
 ## Licencja
 
