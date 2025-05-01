@@ -329,11 +329,6 @@ function selectAlchemicalPhase(phaseId) {
  * 
  * @param {string} formId - ID formy transmutacji
  */
-/**
- * Aktualizuje parametry w interfejsie dla wybranej formy transmutacji
- * 
- * @param {string} formId - ID formy transmutacji
- */
 function updateParameters(formId) {
   const parametersContainer = document.getElementById('parameters-container');
   if (!parametersContainer) return;
@@ -455,6 +450,7 @@ function updateParameters(formId) {
     parametersContainer.appendChild(parameterControl);
   });
 }
+
 /**
  * Aktualizuje stan przycisku rozpoczęcia transmutacji
  */
@@ -587,8 +583,19 @@ function displayPrompt(prompt, transmutationForm) {
     }, 2000);
   });
   
+  // Dodanie przycisku dla nowej transmutacji
+  const newTransmutationButton = document.createElement('button');
+  newTransmutationButton.className = 'copy-prompt-btn';
+  newTransmutationButton.style.marginLeft = '10px';
+  newTransmutationButton.innerHTML = '<i class="fas fa-plus"></i> Nowa transmutacja';
+  newTransmutationButton.addEventListener('click', () => {
+    // Resetowanie UI do stanu początkowego
+    resetTransmutationUI();
+  });
+  
   promptHeader.appendChild(promptTitle);
   promptHeader.appendChild(copyButton);
+  promptHeader.appendChild(newTransmutationButton);
   
   // Treść promptu
   const textarea = document.createElement('textarea');
@@ -628,6 +635,31 @@ function displayPrompt(prompt, transmutationForm) {
   
   // Przewinięcie do wyników
   resultRenderer.resultContainer.scrollIntoView({ behavior: 'smooth' });
+  
+  // Aktualizacja stanu aplikacji
+  appState.isTransmuting = false;
+  updateSubmitButtonState();
+}
+
+/**
+ * Resetuje interfejs do stanu początkowego, aby umożliwić nową transmutację
+ */
+function resetTransmutationUI() {
+  // Resetowanie pól wejściowych
+  document.getElementById('topic-input').value = '';
+  appState.topic = '';
+  
+  // Ukrywanie panelu wyników
+  resultRenderer.clearResults();
+  
+  // Resetowanie flagów stanu
+  appState.isTransmuting = false;
+  
+  // Wyświetlenie komunikatu powitalnego
+  document.querySelector('.welcome-message').style.display = 'block';
+  
+  // Aktualizacja stanu przycisku
+  updateSubmitButtonState();
 }
 
 /**
