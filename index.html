@@ -1,1 +1,181 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atanor Sefirotyczny</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome dla ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- D3.js dla wizualizacji -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <!-- Marked.js dla renderowania markdown -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Atanor Sefirotyczny</h1>
+            <p>System transmutacji epistemicznej oparty na strukturze kabalistycznej</p>
+        </div>
+    </header>
 
+    <div class="api-key-modal" id="apiKeyModal">
+        <div class="modal-content">
+            <h2>Konfiguracja Atanora</h2>
+            <p>Wybierz sposób korzystania z Atanora Sefirotycznego:</p>
+            
+            <div class="mode-selector">
+                <div class="mode-option">
+                    <input type="radio" id="mode-api" name="atanor-mode" value="api">
+                    <label for="mode-api">Tryb API (wymaga klucza Claude API)</label>
+                    <div class="api-config" id="apiConfigSection">
+                        <input type="password" id="apiKeyInput" placeholder="Twój klucz API Claude...">
+                        <p class="note">Twój klucz jest przechowywany lokalnie w przeglądarce.</p>
+                    </div>
+                </div>
+                
+                <div class="mode-option">
+                    <input type="radio" id="mode-prompt" name="atanor-mode" value="prompt" checked>
+                    <label for="mode-prompt">Tryb generowania promptów (bez API)</label>
+                    <p class="note">W tym trybie Atanor wygeneruje zaawansowany prompt, który możesz skopiować i użyć z dowolnym systemem AI.</p>
+                </div>
+            </div>
+            
+            <button id="saveApiKey">Zapisz i kontynuuj</button>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Lewa kolumna - kontrolki -->
+        <div class="control-panel">
+            <div class="sefirotic-tree-container">
+                <h2>Drzewo Życia (Etz Chaim)</h2>
+                <svg id="sefirotic-tree" width="100%" height="600"></svg>
+                <div class="tooltip" id="tooltip"></div>
+            </div>
+            
+            <div class="config-section">
+                <h2>Forma Transmutacji</h2>
+                <div class="option-grid">
+                    <div class="option-card" data-form="separatio">
+                        <div class="option-icon"><i class="fas fa-vial"></i></div>
+                        <h3>Separatio</h3>
+                        <p>Analityczna destylacja esencji</p>
+                    </div>
+                    <div class="option-card" data-form="coagulatio">
+                        <div class="option-icon"><i class="fas fa-cube"></i></div>
+                        <h3>Coagulatio</h3>
+                        <p>Pragmatyczna materializacja</p>
+                    </div>
+                    <div class="option-card" data-form="coniunctio">
+                        <div class="option-icon"><i class="fas fa-handshake"></i></div>
+                        <h3>Coniunctio</h3>
+                        <p>Dialektyczna synteza przeciwieństw</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="config-section">
+                <h2>Faza Alchemiczna</h2>
+                <div class="option-grid">
+                    <div class="option-card" data-phase="nigredo">
+                        <div class="option-icon"><i class="fas fa-moon"></i></div>
+                        <h3>Nigredo</h3>
+                        <p>Dekonstrukcja</p>
+                    </div>
+                    <div class="option-card" data-phase="albedo">
+                        <div class="option-icon"><i class="fas fa-sun"></i></div>
+                        <h3>Albedo</h3>
+                        <p>Klaryfikacja</p>
+                    </div>
+                    <div class="option-card" data-phase="citrinitas">
+                        <div class="option-icon"><i class="fas fa-star"></i></div>
+                        <h3>Citrinitas</h3>
+                        <p>Integracja</p>
+                    </div>
+                    <div class="option-card" data-phase="rubedo">
+                        <div class="option-icon"><i class="fas fa-fire"></i></div>
+                        <h3>Rubedo</h3>
+                        <p>Manifestacja</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="parameters-section">
+                <!-- Dynamiczne parametry będą tutaj dodawane przez JavaScript -->
+                <div id="parameters-container"></div>
+            </div>
+            
+            <div class="topic-section">
+                <h2>Temat do transmutacji</h2>
+                <textarea id="topic-input" placeholder="Wprowadź temat do transmutacji alchemicznej..."></textarea>
+                <button id="transmute-btn" class="submit-btn" disabled>Rozpocznij transmutację</button>
+            </div>
+        </div>
+        
+        <!-- Prawa kolumna - wyniki -->
+        <div class="result-container">
+            <div class="result-header">
+                <h2>Rezultat transmutacji</h2>
+                <div class="meta">
+                    <div class="meta-item" id="meta-sefirah">Wybierz sefirotę</div>
+                    <div class="meta-item" id="meta-form">Wybierz formę transmutacji</div>
+                    <div class="meta-item" id="meta-phase">Wybierz fazę alchemiczną</div>
+                </div>
+            </div>
+            
+            <div class="result-content">
+                <div class="welcome-message">
+                    <h3>Witaj w Atanorze Sefirotycznym</h3>
+                    <p>
+                        Wybierz sefirotę, formę transmutacji i fazę alchemiczną, aby rozpocząć proces 
+                        transmutacji epistemicznej. Wprowadź temat, który chcesz poddać transmutacji, 
+                        a system przeprowadzi jego transformację zgodnie z wybranymi parametrami.
+                    </p>
+                    <p>
+                        Struktura sefirotyczna stanowi mapę epistemiczną procesu transmutacji, 
+                        wyznaczając ścieżkę eksploracji konceptualnej od najwyższych abstrakcji do 
+                        konkretnych manifestacji. Drzewo Życia funkcjonuje jako mapa kognitywna, 
+                        określająca trajektorię ruchu myśli przez różne warstwy rozumienia.
+                    </p>
+                    <div class="mode-indicator">
+                        <p><strong>Tryb działania:</strong> <span id="current-mode">Generowanie promptów (bez API)</span></p>
+                        <p class="mode-description">W tym trybie system wygeneruje zaawansowany prompt, który możesz skopiować i użyć z dowolnym modelem AI.</p>
+                    </div>
+                </div>
+                
+                <!-- Tutaj będą wyświetlane wyniki -->
+                <div id="result-stages" style="display: none;"></div>
+                
+                <!-- Komunikat ładowania -->
+                <div class="loading" id="loading-indicator" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>Trwa proces transmutacji...</p>
+                </div>
+                
+                <!-- Kontynuacja dialogu -->
+                <div class="dialog-container" id="dialog-container" style="display: none;">
+                    <!-- Tutaj będą dodawane wiadomości -->
+                    
+                    <div class="dialog-input">
+                        <input type="text" id="dialog-input" placeholder="Zadaj pytanie dotyczące transmutacji...">
+                        <button id="dialog-send">Wyślij</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Atanor Sefirotyczny &copy; 2025 | <a href="#" id="configureApi">Konfiguracja API</a></p>
+    </footer>
+
+    <!-- Skrypty JavaScript -->
+    <script src="js/atanorDatabase.js"></script>
+    <script src="js/promptGenerator.js"></script>
+    <script src="js/sefirotTree.js"></script>
+    <script src="js/resultRenderer.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
