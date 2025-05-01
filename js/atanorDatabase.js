@@ -1,7 +1,7 @@
 // Baza wiedzy dla systemu Atanor Sefirotyczny
 // Zawiera formalne definicje sefirot, procesów alchemicznych i ich interakcji
 
-const AtanorKnowledgeBase = {
+const AtanorDatabase = {
   // 1. DEFINICJE SEFIROT
   sefirot: {
     keter: {
@@ -684,6 +684,3 @@ const AtanorKnowledgeBase = {
     }
   }
 };
-
-// Eksport modułu
-export default AtanorKnowledgeBase;
