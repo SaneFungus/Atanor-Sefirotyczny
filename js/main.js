@@ -329,6 +329,11 @@ function selectAlchemicalPhase(phaseId) {
  * 
  * @param {string} formId - ID formy transmutacji
  */
+/**
+ * Aktualizuje parametry w interfejsie dla wybranej formy transmutacji
+ * 
+ * @param {string} formId - ID formy transmutacji
+ */
 function updateParameters(formId) {
   const parametersContainer = document.getElementById('parameters-container');
   if (!parametersContainer) return;
@@ -355,88 +360,101 @@ function updateParameters(formId) {
     label.title = paramConfig.description;
     parameterControl.appendChild(label);
     
-    // Renderowanie odpowiedniego kontrolera w zależności od typu parametru
-    if (paramConfig.type === 'range') {
-      // Suwak dla parametrów typu range
+    // Określenie typu parametru na podstawie jego struktury
+    if (paramConfig.range) {
+      // Parametr typu range (np. analysisDepth, dialecticalTension)
       const slider = document.createElement('input');
       slider.type = 'range';
-      slider.min = paramConfig.min;
-      slider.max = paramConfig.max;
-      slider.value = appState.parameters[paramId];
+      slider.min = paramConfig.range[0];
+      slider.max = paramConfig.range[1];
+      slider.value = appState.parameters[paramId] || paramConfig.default;
       
       const valueDisplay = document.createElement('div');
       valueDisplay.className = 'parameter-value';
-      valueDisplay.textContent = `${slider.value}/${paramConfig.max}`;
+      valueDisplay.textContent = `${slider.value}/${paramConfig.range[1]}`;
       
       slider.addEventListener('input', () => {
         appState.parameters[paramId] = parseInt(slider.value);
-        valueDisplay.textContent = `${slider.value}/${paramConfig.max}`;
+        valueDisplay.textContent = `${slider.value}/${paramConfig.range[1]}`;
       });
       
       parameterControl.appendChild(slider);
       parameterControl.appendChild(valueDisplay);
     } 
-    else if (paramConfig.type === 'select') {
-      // Select dla parametrów typu select
-      const select = document.createElement('select');
-      
-      paramConfig.options.forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option.value;
-        optionElement.textContent = option.label;
-        select.appendChild(optionElement);
-      });
-      
-      select.value = appState.parameters[paramId];
-      
-      select.addEventListener('change', () => {
-        appState.parameters[paramId] = select.value;
-      });
-      
-      parameterControl.appendChild(select);
-    }
-    else if (paramConfig.type === 'multiselect') {
-      // Checkboxy dla parametrów typu multiselect
-      const optionsContainer = document.createElement('div');
-      optionsContainer.className = 'multiselect-options';
-      
-      paramConfig.options.forEach(option => {
-        const optionContainer = document.createElement('div');
-        optionContainer.className = 'multiselect-option';
+    else if (paramConfig.options) {
+      // Parametr typu select (np. temporalScope, systemLevel, synthesisType)
+      if (Array.isArray(paramConfig.options)) {
+        const select = document.createElement('select');
         
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = `param-${paramId}-${option.value}`;
-        checkbox.value = option.value;
-        checkbox.checked = appState.parameters[paramId].includes(option.value);
-        
-        const optionLabel = document.createElement('label');
-        optionLabel.htmlFor = checkbox.id;
-        optionLabel.textContent = option.label;
-        optionLabel.title = option.description;
-        
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-            if (!appState.parameters[paramId].includes(option.value)) {
-              appState.parameters[paramId].push(option.value);
-            }
+        paramConfig.options.forEach(option => {
+          const optionElement = document.createElement('option');
+          // Sprawdzamy strukturę opcji
+          if (typeof option === 'string') {
+            // Prosta lista wartości
+            optionElement.value = option;
+            optionElement.textContent = option;
           } else {
-            appState.parameters[paramId] = appState.parameters[paramId].filter(v => v !== option.value);
+            // Obiekt z wartością i etykietą
+            optionElement.value = option;
+            optionElement.textContent = paramConfig.labels ? paramConfig.labels[option] : option;
           }
+          select.appendChild(optionElement);
         });
         
-        optionContainer.appendChild(checkbox);
-        optionContainer.appendChild(optionLabel);
-        optionsContainer.appendChild(optionContainer);
-      });
-      
-      parameterControl.appendChild(optionsContainer);
+        select.value = appState.parameters[paramId] || paramConfig.default;
+        
+        select.addEventListener('change', () => {
+          appState.parameters[paramId] = select.value;
+        });
+        
+        parameterControl.appendChild(select);
+      }
+      else if (typeof paramConfig.options === 'object' && !Array.isArray(paramConfig.options)) {
+        // Checkbox dla parametrów typu multiselect (np. perspectives)
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'multiselect-options';
+        
+        Object.entries(paramConfig.options).forEach(([optionKey, optionDesc]) => {
+          const optionContainer = document.createElement('div');
+          optionContainer.className = 'multiselect-option';
+          
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.id = `param-${paramId}-${optionKey}`;
+          checkbox.value = optionKey;
+          checkbox.checked = (appState.parameters[paramId] || []).includes(optionKey);
+          
+          const optionLabel = document.createElement('label');
+          optionLabel.htmlFor = checkbox.id;
+          optionLabel.textContent = optionKey;
+          optionLabel.title = optionDesc;
+          
+          checkbox.addEventListener('change', () => {
+            if (!Array.isArray(appState.parameters[paramId])) {
+              appState.parameters[paramId] = [];
+            }
+            
+            if (checkbox.checked) {
+              if (!appState.parameters[paramId].includes(optionKey)) {
+                appState.parameters[paramId].push(optionKey);
+              }
+            } else {
+              appState.parameters[paramId] = appState.parameters[paramId].filter(v => v !== optionKey);
+            }
+          });
+          
+          optionContainer.appendChild(checkbox);
+          optionContainer.appendChild(optionLabel);
+          optionsContainer.appendChild(optionContainer);
+        });
+        
+        parameterControl.appendChild(optionsContainer);
+      }
     }
     
     parametersContainer.appendChild(parameterControl);
   });
 }
-
 /**
  * Aktualizuje stan przycisku rozpoczęcia transmutacji
  */
