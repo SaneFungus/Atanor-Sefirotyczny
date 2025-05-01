@@ -44,6 +44,8 @@ const appState = {
 
 // Inicjalizacja aplikacji po załadowaniu DOM
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing Atanor Sefirotyczny...');
+  
   // Inicjalizacja komponentów
   initializeComponents();
   
@@ -79,6 +81,8 @@ function initializeComponents() {
  * Sprawdza, czy klucz API jest zapisany i wyświetla modal jeśli nie
  */
 function checkApiKey() {
+  console.log('Checking API key configuration...');
+  
   // Sprawdzenie trybu aplikacji
   const savedMode = localStorage.getItem('atanor-mode');
   
@@ -90,7 +94,10 @@ function checkApiKey() {
     
     // Zaznacz odpowiedni radiobutton w modalu
     const modeRadio = document.getElementById(`mode-${savedMode}`);
-    if (modeRadio) modeRadio.checked = true;
+    if (modeRadio) {
+      console.log(`Setting mode radio to ${savedMode}`);
+      modeRadio.checked = true;
+    }
     
     // Jeśli tryb API, sprawdź czy jest klucz
     if (savedMode === 'api') {
@@ -99,17 +106,36 @@ function checkApiKey() {
         appState.apiKey = savedApiKey;
         document.getElementById('apiKeyInput').value = savedApiKey;
         document.getElementById('apiKeyModal').style.display = 'none';
+        console.log('API key found, hiding modal');
         return;
       }
     } else {
       // Tryb prompt, nie potrzeba klucza
       document.getElementById('apiKeyModal').style.display = 'none';
+      console.log('Prompt mode selected, hiding modal');
       return;
     }
   }
   
   // Brak zapisanego trybu lub brak klucza w trybie API, pokaż modal
   document.getElementById('apiKeyModal').style.display = 'flex';
+  console.log('No configuration found, showing modal');
+  
+  // Upewniamy się, że przycisk ma prawidłowy event listener
+  const saveButton = document.getElementById('saveApiKey');
+  if (saveButton) {
+    // Usuwamy wszystkie istniejące event listenery (jeśli są)
+    const newButton = saveButton.cloneNode(true);
+    saveButton.parentNode.replaceChild(newButton, saveButton);
+    
+    // Dodajemy nowy event listener
+    newButton.addEventListener('click', function() {
+      console.log('Save button clicked');
+      saveApiKey();
+    });
+  } else {
+    console.error('Save button not found!');
+  }
 }
 
 /**
@@ -140,6 +166,8 @@ function updateModeIndicator(mode) {
  * Inicjalizuje obsługę zdarzeń dla interfejsu użytkownika
  */
 function initializeEventListeners() {
+  console.log('Initializing event listeners...');
+  
   // Obsługa wyboru formy transmutacji
   document.querySelectorAll('.option-card[data-form]').forEach(card => {
     card.addEventListener('click', () => {
@@ -169,11 +197,32 @@ function initializeEventListeners() {
   });
   
   // Obsługa zapisywania klucza API
-  document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
+  const saveButton = document.getElementById('saveApiKey');
+  if (saveButton) {
+    saveButton.addEventListener('click', function() {
+      console.log('Save button clicked from event listener');
+      saveApiKey();
+    });
+  }
   
   // Obsługa otwarcia konfiguracji API
   document.getElementById('configureApi').addEventListener('click', e => {
     e.preventDefault();
+    
+    // Odświeżamy event listenery przed pokazaniem modalu
+    const saveButton = document.getElementById('saveApiKey');
+    if (saveButton) {
+      // Usuwamy wszystkie istniejące event listenery (jeśli są)
+      const newButton = saveButton.cloneNode(true);
+      saveButton.parentNode.replaceChild(newButton, saveButton);
+      
+      // Dodajemy nowy event listener
+      newButton.addEventListener('click', function() {
+        console.log('Save button clicked from reconfiguration');
+        saveApiKey();
+      });
+    }
+    
     document.getElementById('apiKeyModal').style.display = 'flex';
   });
   
@@ -663,31 +712,60 @@ async function sendToAI(prompt, conversationHistory = []) {
  * Zapisuje klucz API i tryb w localStorage
  */
 function saveApiKey() {
-  const selectedMode = document.querySelector('input[name="atanor-mode"]:checked').value;
-  appState.appMode = selectedMode;
+  console.log('Executing saveApiKey() function');
   
-  if (selectedMode === 'api') {
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const apiKey = apiKeyInput.value.trim();
-    
-    if (apiKey === '') {
-      alert('Proszę wprowadzić prawidłowy klucz API lub wybrać tryb generowania promptów');
+  try {
+    const selectedModeElement = document.querySelector('input[name="atanor-mode"]:checked');
+    if (!selectedModeElement) {
+      console.error('No mode selected');
+      alert('Proszę wybrać tryb działania aplikacji');
       return;
     }
     
-    // Zapisanie klucza API
-    localStorage.setItem('atanor-api-key', apiKey);
-    localStorage.setItem('atanor-mode', 'api');
-    appState.apiKey = apiKey;
-  } else {
-    // Tryb prompt - nie potrzeba klucza
-    localStorage.setItem('atanor-mode', 'prompt');
-    appState.apiKey = null;
+    const selectedMode = selectedModeElement.value;
+    console.log(`Selected mode: ${selectedMode}`);
+    appState.appMode = selectedMode;
+    
+    if (selectedMode === 'api') {
+      const apiKeyInput = document.getElementById('apiKeyInput');
+      if (!apiKeyInput) {
+        console.error('API key input not found');
+        return;
+      }
+      
+      const apiKey = apiKeyInput.value.trim();
+      
+      if (apiKey === '') {
+        alert('Proszę wprowadzić prawidłowy klucz API lub wybrać tryb generowania promptów');
+        return;
+      }
+      
+      // Zapisanie klucza API
+      localStorage.setItem('atanor-api-key', apiKey);
+      localStorage.setItem('atanor-mode', 'api');
+      appState.apiKey = apiKey;
+      console.log('API key saved');
+    } else {
+      // Tryb prompt - nie potrzeba klucza
+      localStorage.setItem('atanor-mode', 'prompt');
+      localStorage.removeItem('atanor-api-key');
+      appState.apiKey = null;
+      console.log('Prompt mode saved, API key removed');
+    }
+    
+    // Aktualizacja wskaźnika trybu
+    updateModeIndicator(selectedMode);
+    
+    // Ukrycie modalu
+    const modal = document.getElementById('apiKeyModal');
+    if (modal) {
+      modal.style.display = 'none';
+      console.log('Modal hidden');
+    } else {
+      console.error('Modal not found');
+    }
+  } catch (error) {
+    console.error('Error in saveApiKey function:', error);
+    alert('Wystąpił błąd podczas zapisywania konfiguracji. Spróbuj ponownie.');
   }
-  
-  // Aktualizacja wskaźnika trybu
-  updateModeIndicator(selectedMode);
-  
-  // Ukrycie modalu
-  document.getElementById('apiKeyModal').style.display = 'none';
 }
